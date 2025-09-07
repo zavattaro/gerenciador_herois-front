@@ -48,6 +48,7 @@
               formControlName="birthDate"
               class="form-control"
               [class.is-invalid]="shouldShowError('birthDate')"
+              max="9999-12-31"
             />
             <div *ngIf="shouldShowError('birthDate')" class="error">
               {{ getErrorMessage('birthDate') }}
