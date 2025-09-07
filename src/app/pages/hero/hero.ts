@@ -138,13 +138,31 @@ export class HeroPage implements OnInit {
       (option) => Number(option.value)
     );
 
+    console.log('🎯 Superpoderes selecionados:', this.selectedSuperpowers);
+
     this.heroForm.get('superpowers')?.setValue(this.selectedSuperpowers);
   }
 
-  // ✅ MÉTODO PARA ATUALIZAR SELEÇÃO DO COMBOBOX
   private updateComboboxSelection(): void {
-    // A seleção é gerenciada automaticamente pelo HTML através do [selected]
-    // Este método é apenas para garantir sincronização se necessário
+    const select = document.getElementById(
+      'superpowersSelect'
+    ) as HTMLSelectElement;
+    if (select) {
+      // Desselecionar tudo primeiro
+      Array.from(select.options).forEach((option) => {
+        option.selected = false;
+      });
+
+      // Selecionar os options corretos
+      this.selectedSuperpowers.forEach((superpowerId) => {
+        const option = select.querySelector(
+          `option[value="${superpowerId}"]`
+        ) as HTMLOptionElement;
+        if (option) {
+          option.selected = true;
+        }
+      });
+    }
   }
 
   get f() {
@@ -191,7 +209,6 @@ export class HeroPage implements OnInit {
       },
     });
   }
-
   public onSubmit(): void {
     this.formSubmitted = true;
 
@@ -200,36 +217,43 @@ export class HeroPage implements OnInit {
       return;
     }
 
-    // ✅ CORRIGIDO: Prepara os dados corretamente
     const formValue = this.heroForm.value;
+
+    // ✅ DEBUG: Verificar o que tem no formValue e selectedSuperpowers
+    console.log('formValue.superpowers:', formValue.superpowers);
+    console.log('this.selectedSuperpowers:', this.selectedSuperpowers);
+    console.log('Form completo:', formValue);
 
     const heroData: Hero = {
       name: formValue.name,
       heroName: formValue.heroName,
       birthDate: formValue.birthDate,
-      height: formValue.height || 0, // ✅ Garante que não seja null
-      weight: formValue.weight || 0, // ✅ Garante que não seja null
-      // ✅ Apenas os IDs dos superpoderes (sem a propriedade extra)
-      superpowerIds: formValue.superpowers || [],
+      height: formValue.height || 0,
+      weight: formValue.weight || 0,
+      superpowerIds: this.selectedSuperpowers, // ← Usa selectedSuperpowers
     };
 
-    // ✅ REMOVE propriedades extras que podem causar erro
+    // ✅ DEBUG: Verificar o payload que será enviado
+    console.log('Payload que será enviado:', heroData);
+
     delete (heroData as any).superpowers;
 
     if (this.isEditing && this.editHero) {
       heroData.id = this.editHero.id;
 
+      console.log('✅ EDITANDO - Payload final:', heroData);
+
       this._service.updateHero(this.editHero.id!, heroData).subscribe({
         next: () => {
+          console.log('✅ Herói atualizado com sucesso!');
           this.loadHeroes();
           this.resetForm();
           this.closeModal();
         },
         error: (error) => {
-          console.error('Erro ao atualizar herói:', error);
+          console.error('❌ Erro ao atualizar herói:', error);
           console.error('Detalhes do erro:', error.error);
 
-          // ✅ ADICIONE ESTE TRATAMENTO DE ERRO (igual ao create)
           if (error.error?.errors) {
             const validationErrors = error.error.errors;
             let errorMessage = 'Erro de validação:\n';
@@ -249,16 +273,19 @@ export class HeroPage implements OnInit {
         },
       });
     } else {
+      console.log('✅ CRIANDO - Payload final:', heroData);
+
       this._service.createHero(heroData).subscribe({
         next: () => {
+          console.log('✅ Herói criado com sucesso!');
           this.loadHeroes();
           this.resetForm();
           this.closeModal();
         },
         error: (error) => {
-          console.error('Erro ao criar herói:', error);
+          console.error('❌ Erro ao criar herói:', error);
+          console.error('Detalhes do erro:', error.error);
 
-          // ✅ MOSTRA ERRO PARA O USUÁRIO (ADICIONE ESTAS LINHAS)
           if (error.error?.errors) {
             const validationErrors = error.error.errors;
             let errorMessage = 'Erro de validação:\n';
@@ -269,7 +296,7 @@ export class HeroPage implements OnInit {
               }
             }
 
-            alert(errorMessage); // Ou use um toast/snackbar
+            alert(errorMessage);
           } else {
             alert('Erro ao criar herói. Verifique o console para detalhes.');
           }
@@ -297,6 +324,11 @@ export class HeroPage implements OnInit {
       height: hero.height,
       weight: hero.weight,
       superpowers: this.selectedSuperpowers,
+    });
+
+    // ✅ ATUALIZA A SELEÇÃO VISUAL DO COMBOBOX
+    setTimeout(() => {
+      this.updateComboboxSelection();
     });
   }
 

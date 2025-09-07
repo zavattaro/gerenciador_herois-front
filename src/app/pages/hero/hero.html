@@ -99,7 +99,7 @@
 
           <select
             multiple
-            id="superpowers"
+            id="superpowersSelect"
             class="superpowers-combobox"
             (change)="onSuperpowerChange($event)"
             [class.is-invalid]="shouldShowError('superpowers')"
@@ -187,22 +187,21 @@
             <td>{{ hero.name }}</td>
             <td>{{ hero.birthDate | date:'dd/MM/yyyy' }}</td>
             <td>{{ hero.height }} m</td>
-            <!-- ✅ Alterado para metros -->
             <td>{{ hero.weight }} kg</td>
             <td>
               <div class="superpowers-tags">
                 <span
-                  *ngFor="let power of hero.superpowers"
+                  *ngFor="let power of hero.superpowers; let last = last"
                   class="superpower-tag"
                 >
-                  {{ power.name }}
+                  {{ power.name }}{{ !last ? ', ' : '' }}
                 </span>
                 <span *ngIf="!hero.superpowers?.length" class="no-powers">
                   Nenhum
                 </span>
               </div>
             </td>
-            <td>
+            <td> <!-- ✅ FECHAMENTO CORRETO DA CÉLULA DE AÇÕES -->
               <div class="table-actions">
                 <button
                   (click)="openEditModal(hero)"
