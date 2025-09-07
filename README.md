@@ -1,59 +1,79 @@
-# HeroManager
+# Hero Manager 🦸‍♂️
+Aplicação Fullstack para gerenciamento de super-heróis, desenvolvida como parte de um desafio técnico trainee/júnior.
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.2.
+Frontend em Angular para o sistema de gerenciamento de super-heróis.
 
-## Development server
+## 🚀 Tecnologias Utilizadas
 
-To start a local development server, run:
+- **Angular 17+** - Framework principal
+- **TypeScript** - Linguagem de programação
+- **Bootstrap 5** - Estilização e componentes
+- **RxJS** - Programação reativa
+- **HTML5/CSS3** - Estrutura e estilo
 
+## 📦 Funcionalidades
+
+- ✅ Listagem de heróis com superpoderes
+- ✅ Criação de novos heróis
+- ✅ Edição de heróis existentes
+- ✅ Exclusão de heróis
+- ✅ Seleção múltipla de superpoderes
+- ✅ Formulários reativos com validação
+- ✅ Interface responsiva
+
+## 🏃‍♂️ Como Executar
+
+### Pré-requisitos
+- Node.js 18+ 
+- npm ou yarn
+- Angular CLI 17+
+
+### Instalação
 ```bash
+# Clone o repositório
+git clone https://github.com/zavattaro/gerenciador_herois-front.git
+
+# Entre na pasta
+cd gerenciador_herois-front
+
+# Instale as dependências
+npm install
+
+# Execute o projeto
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Acesso
+Local: http://localhost:4200
+Backend: http://localhost:8080 (necessário estar rodando)
 
-## Code scaffolding
+🔗 Integração com Backend
+API Base: http://localhost:8080/api
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Endpoints:
 
-```bash
-ng generate component component-name
-```
+GET /hero - Listar heróis
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+POST /Hero - Criar herói
 
-```bash
-ng generate --help
-```
+PUT /Hero/{id} - Atualizar herói
 
-## Building
+DELETE /Hero/{id} - Excluir herói
 
-To build the project run:
+GET /Superpowers - Listar superpoderes
 
-```bash
-ng build
-```
+🛠 Scripts Disponíveis
+bash
+ng serve          # Servidor de desenvolvimento
+ng build          # Build de produção
+ng test           # Executar testes
+ng lint           # Análise de código
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-## Running unit tests
+🤓 Desenvolvedor
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Enio Zavattaro - eniozavat@gmail.com
+https://www.linkedin.com/in/eniozavattaro/
 
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+📝 Licença
+Este projeto foi desenvolvido como parte de um desafio técnico.
