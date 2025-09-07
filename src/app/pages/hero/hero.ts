@@ -19,6 +19,17 @@ function dateFormatValidator(): ValidatorFn {
     const value = control.value;
     if (!value) return null;
 
+    // VALIDAÇÃO PARA ANO COM MAIS DE 4 DÍGITOS
+    if (value.length > 10) {
+      return { invalidDate: 'Data inválida' };
+    }
+
+    // VALIDAÇÃO PARA ANO COM MAIS DE 4 DÍGITOS (regex)
+    const year = value.split('-')[0];
+    if (year && year.length > 4) {
+      return { invalidYear: 'Ano deve ter no máximo 4 dígitos' };
+    }
+
     const date = new Date(value);
     if (isNaN(date.getTime())) {
       return { invalidDate: 'Data inválida' };
@@ -47,6 +58,12 @@ function notFutureDateValidator(): ValidatorFn {
   };
 }
 
+/**
+ * Página principal de gerenciamento de heróis
+ * @component HeroPage
+ * @description Componente responsável pelo CRUD completo de heróis
+ * com formulários reativos, validações e modal de edição/criação
+ */
 @Component({
   selector: 'app-hero',
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
@@ -65,7 +82,7 @@ export class HeroPage implements OnInit {
   formSubmitted = false;
   isModalOpen = false;
 
-  // ✅ VARIÁVEIS SIMPLIFICADAS
+  // VARIÁVEIS SIMPLIFICADAS
   selectedSuperpowers: number[] = [];
 
   // Métodos para controlar o modal
@@ -99,39 +116,19 @@ export class HeroPage implements OnInit {
       birthDate: [
         null,
         [Validators.required, dateFormatValidator(), notFutureDateValidator()],
-      ], // ✅ Added Validators.required
+      ],
       height: [
         null,
         [Validators.required, Validators.min(0.5), Validators.max(3.0)],
-      ], // ✅ Added Validators.required
+      ],
       weight: [
         null,
         [Validators.required, Validators.min(0), Validators.max(500)],
-      ], // ✅ Added Validators.required
+      ],
     });
   }
 
-  // ✅ MÉTODOS SIMPLIFICADOS PARA COMBOBOX
-  getSuperpowerName(id: number): string {
-    const superpower = this.superpowers.find((sp) => sp.id === id);
-    return superpower ? superpower.name : 'Desconhecido';
-  }
-
-  removeSuperpower(id: number): void {
-    this.selectedSuperpowers = this.selectedSuperpowers.filter(
-      (superpowerId) => superpowerId !== id
-    );
-    this.heroForm.get('superpowers')?.setValue(this.selectedSuperpowers);
-
-    // Atualiza o combobox
-    this.updateComboboxSelection();
-  }
-
-  isSuperpowerSelected(superpowerId: number): boolean {
-    return this.selectedSuperpowers.includes(superpowerId);
-  }
-
-  // ✅ NOVO MÉTODO PARA COMBOBOX
+  // MÉTODO PARA COMBOBOX
   onSuperpowerChange(event: any): void {
     const select = event.target as HTMLSelectElement;
     this.selectedSuperpowers = Array.from(select.selectedOptions).map(
@@ -143,26 +140,20 @@ export class HeroPage implements OnInit {
     this.heroForm.get('superpowers')?.setValue(this.selectedSuperpowers);
   }
 
-  private updateComboboxSelection(): void {
-    const select = document.getElementById(
-      'superpowersSelect'
-    ) as HTMLSelectElement;
-    if (select) {
-      // Desselecionar tudo primeiro
-      Array.from(select.options).forEach((option) => {
-        option.selected = false;
-      });
+  // MÉTODOS SIMPLIFICADOS PARA COMBOBOX
+  getSuperpowerName(id: number): string {
+    const superpower = this.superpowers.find((sp) => sp.id === id);
+    return superpower ? superpower.name : 'Desconhecido';
+  }
 
-      // Selecionar os options corretos
-      this.selectedSuperpowers.forEach((superpowerId) => {
-        const option = select.querySelector(
-          `option[value="${superpowerId}"]`
-        ) as HTMLOptionElement;
-        if (option) {
-          option.selected = true;
-        }
-      });
-    }
+  removeSuperpower(id: number): void {
+    this.selectedSuperpowers = this.selectedSuperpowers.filter(
+      (superpowerId) => superpowerId !== id
+    );
+  }
+
+  isSuperpowerSelected(superpowerId: number): boolean {
+    return this.selectedSuperpowers.includes(superpowerId);
   }
 
   get f() {
@@ -219,22 +210,14 @@ export class HeroPage implements OnInit {
 
     const formValue = this.heroForm.value;
 
-    // ✅ DEBUG: Verificar o que tem no formValue e selectedSuperpowers
-    console.log('formValue.superpowers:', formValue.superpowers);
-    console.log('this.selectedSuperpowers:', this.selectedSuperpowers);
-    console.log('Form completo:', formValue);
-
     const heroData: Hero = {
       name: formValue.name,
       heroName: formValue.heroName,
       birthDate: formValue.birthDate,
       height: formValue.height || 0,
       weight: formValue.weight || 0,
-      superpowerIds: this.selectedSuperpowers, // ← Usa selectedSuperpowers
+      superpowerIds: this.selectedSuperpowers,
     };
-
-    // ✅ DEBUG: Verificar o payload que será enviado
-    console.log('Payload que será enviado:', heroData);
 
     delete (heroData as any).superpowers;
 
@@ -325,11 +308,6 @@ export class HeroPage implements OnInit {
       weight: hero.weight,
       superpowers: this.selectedSuperpowers,
     });
-
-    // ✅ ATUALIZA A SELEÇÃO VISUAL DO COMBOBOX
-    setTimeout(() => {
-      this.updateComboboxSelection();
-    });
   }
 
   public delete(id: number): void {
@@ -377,7 +355,8 @@ export class HeroPage implements OnInit {
     if (control.errors['futureDate']) return 'Data não pode ser futura';
     if (control.errors['max'])
       return `Valor máximo: ${control.errors['max'].max}`;
-
+    if (control.errors['invalidYear'])
+      return 'Ano deve ter no máximo 4 dígitos';
     return 'Valor inválido';
   }
 }
