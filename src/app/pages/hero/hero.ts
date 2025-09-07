@@ -96,10 +96,18 @@ export class HeroPage implements OnInit {
     this.heroForm = this._fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       heroName: ['', [Validators.required, Validators.minLength(2)]],
-      birthDate: [null, [dateFormatValidator(), notFutureDateValidator()]],
-      height: [null, [Validators.min(0.5), Validators.max(3.0)]],
-      weight: [null, [Validators.min(0), Validators.max(500)]],
-      superpowers: [[]],
+      birthDate: [
+        null,
+        [Validators.required, dateFormatValidator(), notFutureDateValidator()],
+      ], // ✅ Added Validators.required
+      height: [
+        null,
+        [Validators.required, Validators.min(0.5), Validators.max(3.0)],
+      ], // ✅ Added Validators.required
+      weight: [
+        null,
+        [Validators.required, Validators.min(0), Validators.max(500)],
+      ], // ✅ Added Validators.required
     });
   }
 
@@ -209,7 +217,6 @@ export class HeroPage implements OnInit {
     delete (heroData as any).superpowers;
 
     if (this.isEditing && this.editHero) {
-      // ✅ CORREÇÃO: Adiciona o ID ao objeto
       heroData.id = this.editHero.id;
 
       this._service.updateHero(this.editHero.id!, heroData).subscribe({
@@ -221,6 +228,24 @@ export class HeroPage implements OnInit {
         error: (error) => {
           console.error('Erro ao atualizar herói:', error);
           console.error('Detalhes do erro:', error.error);
+
+          // ✅ ADICIONE ESTE TRATAMENTO DE ERRO (igual ao create)
+          if (error.error?.errors) {
+            const validationErrors = error.error.errors;
+            let errorMessage = 'Erro de validação:\n';
+
+            for (const key in validationErrors) {
+              if (validationErrors.hasOwnProperty(key)) {
+                errorMessage += `• ${validationErrors[key].join('\n• ')}\n`;
+              }
+            }
+
+            alert(errorMessage);
+          } else {
+            alert(
+              'Erro ao atualizar herói. Verifique o console para detalhes.'
+            );
+          }
         },
       });
     } else {
@@ -232,8 +257,22 @@ export class HeroPage implements OnInit {
         },
         error: (error) => {
           console.error('Erro ao criar herói:', error);
-          // ✅ Mostra detalhes do erro
-          console.error('Detalhes do erro:', error.error);
+
+          // ✅ MOSTRA ERRO PARA O USUÁRIO (ADICIONE ESTAS LINHAS)
+          if (error.error?.errors) {
+            const validationErrors = error.error.errors;
+            let errorMessage = 'Erro de validação:\n';
+
+            for (const key in validationErrors) {
+              if (validationErrors.hasOwnProperty(key)) {
+                errorMessage += `• ${validationErrors[key].join('\n• ')}\n`;
+              }
+            }
+
+            alert(errorMessage); // Ou use um toast/snackbar
+          } else {
+            alert('Erro ao criar herói. Verifique o console para detalhes.');
+          }
         },
       });
     }
