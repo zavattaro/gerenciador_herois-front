@@ -52,7 +52,7 @@ API Base: http://localhost:8080/api
 
 Endpoints:
 
-GET /hero - Listar heróis
+GET /Hero - Listar heróis
 
 POST /Hero - Criar herói
 
