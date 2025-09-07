@@ -1,0 +1,226 @@
+<div class="hero-container">
+  <!-- ✅ MODAL EXTERNO - NO TOPO DO ARQUIVO -->
+  <div *ngIf="isModalOpen" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditing ? 'Editar Herói' : 'Novo Herói' }}</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+
+      <form [formGroup]="heroForm" (ngSubmit)="onSubmit()" class="hero-form">
+        <!-- Campos do formulário -->
+        <div class="form-group">
+          <label for="name">Nome Civil:</label>
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            placeholder="Ex: Peter Parker"
+            class="form-control"
+            [class.is-invalid]="shouldShowError('name')"
+          />
+          <div *ngIf="shouldShowError('name')" class="error">
+            {{ getErrorMessage('name') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="heroName">Nome de Herói:</label>
+          <input
+            type="text"
+            id="heroName"
+            formControlName="heroName"
+            placeholder="Ex: Homem-Aranha"
+            class="form-control"
+            [class.is-invalid]="shouldShowError('heroName')"
+          />
+          <div *ngIf="shouldShowError('heroName')" class="error">
+            {{ getErrorMessage('heroName') }}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="birthDate">Data de Nascimento:</label>
+            <input
+              type="date"
+              id="birthDate"
+              formControlName="birthDate"
+              class="form-control"
+              [class.is-invalid]="shouldShowError('birthDate')"
+            />
+            <div *ngIf="shouldShowError('birthDate')" class="error">
+              {{ getErrorMessage('birthDate') }}
+            </div>
+          </div>
+
+          <div class="form-group input-with-unit">
+            <label for="height">Altura:</label>
+            <input
+              type="number"
+              id="height"
+              formControlName="height"
+              placeholder="Ex: 1.80"
+              step="0.01"
+              min="0.5"
+              max="3.0"
+              class="form-control"
+              [class.is-invalid]="shouldShowError('height')"
+            />
+            <span class="unit-label">m</span>
+            <div *ngIf="shouldShowError('height')" class="error">
+              {{ getErrorMessage('height') }}
+            </div>
+          </div>
+
+          <div class="form-group input-with-unit">
+            <label for="weight">Peso:</label>
+            <input
+              type="number"
+              id="weight"
+              formControlName="weight"
+              placeholder="Ex: 75.5"
+              step="0.1"
+              min="0"
+              max="500"
+              class="form-control"
+              [class.is-invalid]="shouldShowError('weight')"
+            />
+            <span class="unit-label">kg</span>
+            <div *ngIf="shouldShowError('weight')" class="error">
+              {{ getErrorMessage('weight') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Superpoderes - VERSÃO SIMPLIFICADA -->
+        <div class="form-group">
+          <label for="superpowers">Superpoderes:</label>
+
+          <select
+            multiple
+            id="superpowers"
+            class="superpowers-combobox"
+            (change)="onSuperpowerChange($event)"
+            [class.is-invalid]="shouldShowError('superpowers')"
+          >
+            <option
+              *ngFor="let superpower of superpowers"
+              [value]="superpower.id"
+              [selected]="isSuperpowerSelected(superpower.id)"
+            >
+              {{ superpower.name }} - {{ superpower.description }}
+            </option>
+          </select>
+
+          <div *ngIf="shouldShowError('superpowers')" class="error">
+            {{ getErrorMessage('superpowers') }}
+          </div>
+
+          <!-- Tags dos selecionados -->
+          <div class="selected-tags" *ngIf="selectedSuperpowers.length > 0">
+            <span *ngFor="let id of selectedSuperpowers" class="selected-tag">
+              {{ getSuperpowerName(id) }}
+              <button (click)="removeSuperpower(id)" class="remove-tag">
+                ×
+              </button>
+            </span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="submit"
+            [disabled]="heroForm.invalid && formSubmitted"
+            class="btn btn-primary"
+          >
+            {{ isEditing ? 'Atualizar' : 'Criar' }}
+          </button>
+
+          <button
+            type="button"
+            (click)="closeModal()"
+            class="btn btn-secondary"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- ✅ FIM DO MODAL -->
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="page-header">
+    <h1>Gerenciador de Heróis</h1>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <span class="btn-icon">+</span> Novo Herói
+    </button>
+  </div>
+
+  <div class="heroes-section">
+    <h2>Heróis Cadastrados</h2>
+
+    <div *ngIf="heroes.length === 0" class="empty-state">
+      <p>Nenhum herói cadastrado ainda.</p>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        Cadastrar Primeiro Herói
+      </button>
+    </div>
+
+    <div *ngIf="heroes.length > 0" class="table-container">
+      <table class="heroes-table">
+        <thead>
+          <tr>
+            <th>Nome Herói</th>
+            <th>Nome Civil</th>
+            <th>Nascimento</th>
+            <th>Altura</th>
+            <th>Peso</th>
+            <th>Superpoderes</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let hero of heroes">
+            <td><strong>{{ hero.heroName }}</strong></td>
+            <td>{{ hero.name }}</td>
+            <td>{{ hero.birthDate | date:'dd/MM/yyyy' }}</td>
+            <td>{{ hero.height }} m</td>
+            <!-- ✅ Alterado para metros -->
+            <td>{{ hero.weight }} kg</td>
+            <td>
+              <div class="superpowers-tags">
+                <span
+                  *ngFor="let power of hero.superpowers"
+                  class="superpower-tag"
+                >
+                  {{ power.name }}
+                </span>
+                <span *ngIf="!hero.superpowers?.length" class="no-powers">
+                  Nenhum
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button
+                  (click)="openEditModal(hero)"
+                  class="btn btn-edit btn-sm"
+                >
+                  ✏️ Editar
+                </button>
+                <button
+                  (click)="delete(hero.id!)"
+                  class="btn btn-delete btn-sm"
+                >
+                  🗑️ Excluir
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
